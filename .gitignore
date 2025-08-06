@@ -1,0 +1,12 @@
+.idea/
+venv/
+.ipynb_*
+backup/
+expenses
+LLM_coding
+ML_Coding/Image_Detection_Yolo
+ML_Coding/Docker/python-docker-example
+RAG_GenAI_Coding/Updated-Langchain
+data_analytics_pandas/pydata-book
+*sbi*.xlsx
+*.pdf
