@@ -13,3 +13,4 @@ data_analytics_pandas/pydata-book
 creditcard.csv
 ML_Coding/fraud_detection_model/creditcard.csv
 github_repos
+*.csv
