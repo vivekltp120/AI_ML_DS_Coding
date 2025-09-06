@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    ports: ["6333:6333", "6334:6334"]
+    volumes:
+      - qdrant_storage:/qdrant/storage
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports: ["11434:11434"]
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    entrypoint: ["/bin/sh","-c"]
+    command: |
+      "ollama serve & sleep 2 && \
+       ollama pull qwen2.5:7b-instruct && \
+       wait"
+
+  api:
+    build: ./api
+    container_name: rag_api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+      - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+      - COLLECTION_NAME=market_docs
+      - TZ=Asia/Kolkata
+    depends_on: [qdrant, ollama]
+    ports: ["8000:8000"]
+
+  worker:
+    build: ./worker
+    container_name: rag_worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+      - COLLECTION_NAME=market_docs
+      - TZ=Asia/Kolkata
+    depends_on: [qdrant]
+    volumes:
+      - ./data:/app/data
+    command: ["python","ingest.py"]
+
+  ui:
+    build: ./ui
+    container_name: rag_ui
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - API_BASE=http://api:8000
+      - TZ=Asia/Kolkata
+    depends_on: [api]
+    ports: ["8501:8501"]
+
+volumes:
+  qdrant_storage:
+  ollama_models:

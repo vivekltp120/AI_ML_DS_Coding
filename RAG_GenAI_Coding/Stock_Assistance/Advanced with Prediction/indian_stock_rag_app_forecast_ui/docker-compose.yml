@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  api:
+    build: ./api
+    ports: ["8000:8000"]
+    depends_on: [qdrant]
+  ui:
+    build: ./ui
+    ports: ["8501:8501"]
+    depends_on: [api]
+  worker:
+    build: ./worker
+    depends_on: [qdrant]
+  qdrant:
+    image: qdrant/qdrant:v1.7.3
+    ports: ["6333:6333"]
+  ollama:
+    image: ollama/ollama
+    ports: ["11434:11434"]

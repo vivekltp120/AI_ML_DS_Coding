@@ -1,0 +1,1 @@
+# Indian Stock Market RAG with Forecasting UI\nNow includes daily prices + configurable forecasts.\n
